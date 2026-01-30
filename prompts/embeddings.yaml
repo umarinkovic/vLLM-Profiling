@@ -1,0 +1,4 @@
+prompts:
+  - "Generate a semantic vector for the caption of image <image>{image}</image>: 'A red running shoe with white laces.'"
+  - "Create embeddings for the text extracted from image <image>{image}</image> to enable search across manuals."
+  - "Convert this product description into an embedding for similarity search: 'High-quality leather backpack, brown, with multiple compartments.'"
