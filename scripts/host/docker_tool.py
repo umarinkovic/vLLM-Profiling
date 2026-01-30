@@ -64,10 +64,21 @@ def run_container(args, script_args):
         # full_script_cmd = [f"/workspace/scripts/{args.script}"] + script_args[1:]
         # full_script_str = " ".join(shlex.quote(arg) for arg in full_script_cmd)
         # cmd.extend(["/bin/bash", "-c", full_script_str])
+
+        # removing prefix -- from remainder args
         script_args = script_args[1:]
-        cmd.extend(["python3", f"/workspace/scripts/{args.script}"] + script_args)
+        shell_cmd.append(
+            "python3 /workspace/scripts/" + args.script + " " + " ".join(script_args)
+        )
     else:
-        cmd.append("bash")
+        shell_cmd.append("bash")
+
+    cmd.extend([
+        args.image_name,
+        "/bin/bash",
+        "-c",
+        " && ".join(shell_cmd),
+    ])
     
     print(f"Running Docker container: {' '.join(cmd)}")
     result = subprocess.run(cmd)
