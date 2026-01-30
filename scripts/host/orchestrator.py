@@ -52,7 +52,8 @@ def run(args):
                 subprocess.call([
                 "scripts/host/docker_tool.py",
                 "run", 
-               # "--image-name", 
+                # TODO: enable correct parsing of --image-name argument (gets forwarded as remainder arg to script for some reason?)
+                # "--image-name", 
                 #args.docker_image, 
                 "--device",
                 device,

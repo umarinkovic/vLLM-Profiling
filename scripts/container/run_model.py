@@ -21,8 +21,10 @@ def set_env(model, additional_env_vars=None):
     os.environ['HIPBLASLT_LOG_MASK'] = '32'
     os.environ['TORCH_BLAS_PREFER_HIPBLASLT'] = '1'
 
-    # TODO: add support for windows paths
+    # TODO: remove this env var as torch provides API for querying GPU name? (not always 100% accurate)
     device_name_safe = os.getenv("DEVICE_NAME", "GPU").replace(" ", "_")
+    
+    # TODO: add support for windows paths
     log_dir = Path(f'/workspace/logs/{device_name_safe}/{model.replace("/", "_")}')
     log_dir.mkdir(parents=True, exist_ok=True)
     log_file = open(log_dir / "cmd.log", "w", buffering=1)

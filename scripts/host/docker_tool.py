@@ -60,6 +60,7 @@ def run_container(args, script_args):
     cmd.append(args.image_name)
     
     if args.script:
+        # TODO: enable executing any script not just python (parsing currently gets messed up so we use python3 explicitly)
         # full_script_cmd = [f"/workspace/scripts/{args.script}"] + script_args[1:]
         # full_script_str = " ".join(shlex.quote(arg) for arg in full_script_cmd)
         # cmd.extend(["/bin/bash", "-c", full_script_str])
