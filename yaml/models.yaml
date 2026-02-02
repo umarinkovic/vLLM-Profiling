@@ -1,5 +1,10 @@
 models:
-
+  - name: Qwen/Qwen3-4B
+    type: 'text'
+    script: 'qwen3.py'
+    env:
+      SP_TEMPERATURE: '0.8'
+      MAX_MODEL_LEN: '30000'
  #  - name: Qwen3-VL/Gemma
  #    type: multimodal
   - name: deepseek-ai/DeepSeek-OCR
