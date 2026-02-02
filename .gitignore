@@ -1,4 +1,10 @@
 **/*cache*/
-.config
-.logs
+__pycache__/
+
+**/.config
+**/.logs
+
+venv/
+*venv*  # optional, for non-standard venv names
+
 Dockerfile
