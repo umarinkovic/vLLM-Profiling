@@ -39,7 +39,7 @@ def run(model, duration, prompts):
         outputs.extend(llm.generate(prompts, sampling_params))
         iterations += 1
 
-    print(f"Sample output from {model}: {outputs[0].text}")
+    print(f"Sample output from {model}: {outputs[0].outputs[0].text}")
     print(f"Total runtime: {time.monotonic() - start:.2f}s for {iterations} iterations.")
 
 def main():
