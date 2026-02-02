@@ -1,4 +1,0 @@
-prompts:
-  - "Extract all text from the scanned receipt image: <image>{image}</image>, and list the items and prices."
-  - "Read the handwritten notes in image: <image>{image}</image>, and output them as plain text."
-  - "Convert the text from the menu image: <image>{image}</image>, into structured JSON format."

@@ -1,0 +1,7 @@
+prompts:
+  - prompt: "<image>\nExtract the text from the scanned image. Print 5 random sections of the text, 512 tokens maximum."
+    image: instructions
+  - prompt: "<image>\nRead the handwritten notes in the image. Output all detected text as plain text, maximum 512 tokens."
+    image: note
+  - prompt: "<image>\nConvert the menu text from the image into structured JSON with fields: item_name, description, price."
+    image:  menu

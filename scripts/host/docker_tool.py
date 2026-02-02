@@ -6,12 +6,28 @@ import argparse
 import subprocess
 import sys
 from pathlib import Path
-import shlex
+import os
+import yaml
+
+def prepare_env():
+    path_to_env_vars = Path(__file__).parent.parent.parent / "yaml" / "env_vars.yaml"
+    with open(path_to_env_vars, "r") as f:
+        env_vars_to_propagate = yaml.safe_load(f)["env_vars"]
+    docker_env = {env_var: os.getenv(env_var) for env_var in env_vars_to_propagate if os.getenv(env_var)}
+    return docker_env
 
 def run_container(args, script_args):
+    env = prepare_env()
     cmd = [
             "docker",
             "run",
+            # first, unpack environment key-value pairs into a list of k=v strings
+            # then unpack the kv pairs into lists of ["-e", kv]
+            *[
+                item
+                for key, value in env.items()
+                for item in ("-e", f"{key}={value}")
+            ],
             "--rm",
             "--ipc=host",
             "--group-add", "video",
@@ -24,7 +40,8 @@ def run_container(args, script_args):
     interactive = not args.script
     if interactive:
         cmd.append("-it")
-    """else:
+    """TODO: remove or fix this, needed for parallelism probably
+    else:
         cmd.append("-d") """
 
     # mount appropriate gpu
@@ -34,6 +51,7 @@ def run_container(args, script_args):
     cmd.extend(["-e", f'DEVICE_NAME={args.device_name}'])
 
     # mount dirs from host to container
+    container_workspace = Path("/workspace")
 
     # huggingface cache dir
     hf_cache_container = "/root/.cache/huggingface"   
@@ -42,23 +60,37 @@ def run_container(args, script_args):
     print(f"Mounting HuggingFace cache: {args.hf_cache_dir} -> {hf_cache_container}")
 
     # local container scripts dir
-    scripts_container = "/workspace/scripts"
+    scripts_container = str(container_workspace / "scripts")
     cmd.extend(["-v", f"./scripts/container:{scripts_container}"])
     print(f"Mounting ./scripts/container -> {scripts_container}")
 
     # local prompts dir
-    prompts_container = "/workspace/prompts"
+    prompts_container = str(container_workspace / "prompts")
     cmd.extend(["-v", f"./prompts:{prompts_container}"])
     print(f"Mounting ./prompts -> {prompts_container}")
 
     # logs dir
     # TODO: parametrize this / add env var for customization?
-    logs_container = "/workspace/logs"
+    logs_container = str(container_workspace / "logs")
     cmd.extend(["-v", f"./.logs:{logs_container}"])
     print(f"Mounting ./.logs -> {logs_container}")
-    
-    cmd.append(args.image_name)
-    
+
+    # images dir
+    images_container = str(container_workspace / "images")
+    cmd.extend(["-v", f"./images:{images_container}"])
+    print(f"Mounting ./images -> {images_container}")
+
+    # yaml dir
+    yaml_container = str(container_workspace / "yaml")
+    cmd.extend(["-v", f"./yaml:{yaml_container}"])
+    print(f"Mounting ./yaml -> {yaml_container}")
+
+    shell_cmd = []
+
+    shell_cmd.append(
+        f"pip install --no-cache-dir -r {scripts_container}/requirements.txt"
+    )
+
     if args.script:
         # TODO: enable executing any script not just python (parsing currently gets messed up so we use python3 explicitly)
         # full_script_cmd = [f"/workspace/scripts/{args.script}"] + script_args[1:]
@@ -91,12 +123,8 @@ def parse_args():
     
     subparsers = parser.add_subparsers(dest="command", required=True)
     
-    build_parser = subparsers.add_parser("build", help="Build the image.")
-    build_parser.add_argument("image_name", help="Name for the Docker image")
-    build_parser.add_argument("--build-arg", action="append", help="Build arguments in KEY=VALUE format")
-    
     run_parser = subparsers.add_parser("run", help="Run an existing Docker image.")
-    run_parser.add_argument("--image_name", help="Docker image to run", default="hyoon11/vllm-dev:20260121_43_py3.12_torch2.9_triton3.5_navi_upstream_6a09612_ubuntu24.04")
+    run_parser.add_argument("--image-name", help="Docker image to run", default="hyoon11/vllm-dev:20260121_43_py3.12_torch2.9_triton3.5_navi_upstream_6a09612_ubuntu24.04")
     run_parser.add_argument("--script", help="Script to run inside container.")
     run_parser.add_argument("--hf-cache-dir", help="Location of host folder which will be mounter under /root/.cache/huggingface in docker container.", default="./.cache/huggingface")
     run_parser.add_argument("--device", help="/dev/dri/<dir> location of the device", required=True)

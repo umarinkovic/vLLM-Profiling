@@ -1,0 +1,14 @@
+models:
+
+ #  - name: Qwen3-VL/Gemma
+ #    type: multimodal
+  - name: deepseek-ai/DeepSeek-OCR
+    type: image-to-text
+    script: deepseek_ocr.py
+    env:
+      SP_TEMPERATURE: '0.0'
+      SP_MAX_TOKENS: '1024'
+  # - name: Qwen/Qwen3-embedding
+  #   type: embeddings
+  #- name: EmbeddingsGemma
+  #  type: embeddings

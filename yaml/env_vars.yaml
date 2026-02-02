@@ -1,0 +1,8 @@
+# env_vars.yaml
+# defines which env vars will be passed from docker_tool to the running container
+
+env_vars:
+  - GPU_MEM_UTIL
+  - SP_TEMPERATURE
+  - SP_MAX_TOKENS
+  - MAX_MODEL_LEN
