@@ -1,4 +1,13 @@
 prompts:
-  - "Describe the scene in the image <image>{scene.jpg}</image>, including objects, people, and their actions."
-  - "Analyze the meme image <image>{meme.jpg}</image> and explain its joke in one sentence."
-  - "Given the product image <image>{product.jpg}</image>, suggest three creative captions for social media."
+      - - type: image
+          name: scene
+        - type: text
+          text: "Describe the scene in the image, including objects, people, and their actions."
+      - - type: image
+          name: meme
+        - type: text
+          text: "Analyze the meme image and explain its joke in one sentence."
+      - - type: image
+          name: product
+        - type: text
+          text: "Given the product image, suggest three creative captions for social media."

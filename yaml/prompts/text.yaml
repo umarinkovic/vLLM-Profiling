@@ -1,4 +1,4 @@
 prompts:
-  - prompt: "Print the first 512 digits of Pi."
-  - prompt: "Write a 1024-token essay about the importance of kindness."
-  - prompt: "Summarize the entirety of LOTR in 512 tokens."
+  - "Print the first 512 digits of Pi."
+  - "Write a 1024-token essay about the importance of kindness."
+  - "Summarize the entirety of LOTR in 512 tokens."

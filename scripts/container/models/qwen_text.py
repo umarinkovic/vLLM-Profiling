@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-run_model.py 
+qwwen_text.py 
 
 Script for running Qwen3 text models.
 
@@ -14,9 +14,7 @@ import time
 import os
 import sys
 from pathlib import Path
-# TODO: find a better solution this is too hacky
-sys.path.append(str(Path(__file__).resolve().parent.parent))
-from utilities import parse_prompts
+from model_utilities.preprocess import load_prompts
 
 
 def run(model, duration, prompts):
@@ -61,11 +59,11 @@ def main():
 
     args, _ = parser.parse_known_args()
 
-    if not args.model.startswith("Qwen/"):
-        print("This script is only meant for running Qwen text models.")
+    if not args.model.startswith("Qwen/Qwen3-"):
+        print("This script is only meant for running Qwen3 text models.")
         sys.exit(1)
 
-    prompts = parse_prompts(Path("/workspace/yaml/prompts/text.yaml"))
+    prompts = load_prompts(Path("/workspace/yaml/prompts/text.yaml"))
 
     run(args.model, args.duration, prompts)
 
