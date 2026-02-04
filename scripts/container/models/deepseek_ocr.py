@@ -13,11 +13,8 @@ import argparse
 import time
 from pathlib import Path
 import os
-import sys
 
-# TODO: find a better solution this is too hacky
-sys.path.append(str(Path(__file__).resolve().parent.parent))
-from utilities import parse_prompts
+from model_utilities.preprocess import load_prompts, load_images, prepare_prompts
 
 
 def run(duration, prompts):
@@ -25,7 +22,7 @@ def run(duration, prompts):
         model="deepseek-ai/DeepSeek-OCR",
         enable_prefix_caching=False,
         mm_processor_cache_gb=0,
-        logits_processors=[NGramPerReqLogitsProcessor]
+        logits_processors=[NGramPerReqLogitsProcessor],
     )   
 
     sampling_params = SamplingParams(
@@ -64,7 +61,7 @@ def main():
     
     args, _ = parser.parse_known_args()
 
-    prompts = parse_prompts(Path("/workspace/yaml/prompts/image-to-text.yaml"), Path("/workspace/images/image-to-text"))
+    prompts = prepare_prompts(load_prompts((Path("/workspace/yaml/prompts/image-to-text.yaml")), load_images(Path("/workspace/images/image-to-text"))))
     run(args.duration, prompts)
 
 if __name__ == "__main__":
