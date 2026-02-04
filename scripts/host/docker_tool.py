@@ -9,8 +9,10 @@ from pathlib import Path
 import os
 import yaml
 
+ROOT_DIR = Path(__file__).parent.parent.parent
+
 def prepare_env():
-    path_to_env_vars = Path(__file__).parent.parent.parent / "yaml" / "env_vars.yaml"
+    path_to_env_vars = ROOT_DIR / "yaml" / "env_vars.yaml"
     with open(path_to_env_vars, "r") as f:
         env_vars_to_propagate = yaml.safe_load(f)["env_vars"]
     docker_env = {env_var: os.getenv(env_var) for env_var in env_vars_to_propagate if os.getenv(env_var)}
@@ -124,7 +126,9 @@ def parse_args():
     subparsers = parser.add_subparsers(dest="command", required=True)
     
     run_parser = subparsers.add_parser("run", help="Run an existing Docker image.")
-    run_parser.add_argument("--image-name", help="Docker image to run", default="hyoon11/vllm-dev:20260121_43_py3.12_torch2.9_triton3.5_navi_upstream_6a09612_ubuntu24.04")
+    run_parser.add_argument("--image-name", 
+                            help="Docker image to run", 
+                            default="hyoon11/vllm-dev:20260121_43_py3.12_torch2.9_triton3.5_navi_upstream_6a09612_ubuntu24.04")
     run_parser.add_argument("--script", help="Script to run inside container.")
     run_parser.add_argument("--hf-cache-dir", help="Location of host folder which will be mounter under /root/.cache/huggingface in docker container.", default="./.cache/huggingface")
     run_parser.add_argument("--device", help="/dev/dri/<dir> location of the device", required=True)
