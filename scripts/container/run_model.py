@@ -17,6 +17,7 @@ import torch
 
 
 GPU_NAME = ""
+LOG_FILE = ""
 
 def setup_environment(model, **custom_env_vars):
     # TODO: add support for windows paths
@@ -24,9 +25,10 @@ def setup_environment(model, **custom_env_vars):
     GPU_NAME = os.getenv("DEVICE_NAME", "GPU").replace(" ", "_")
     log_dir = Path(f'/workspace/logs/{GPU_NAME}/{model.replace("/", "_")}')
     log_dir.mkdir(parents=True, exist_ok=True)
-    log_file = open(log_dir / "cmd.log", "w", buffering=1)
-    sys.stdout = Tee(sys.stdout,log_file)
-    sys.stderr = Tee(sys.stderr, log_file)
+    global LOG_FILE
+    LOG_FILE = open(log_dir / "cmd.log", "w", buffering=1)
+    sys.stdout = Tee(sys.stdout, LOG_FILE)
+    sys.stderr = Tee(sys.stderr, LOG_FILE)
 
     env = {
         'MIOPEN_ENABLE_LOGGING': '1',
@@ -43,6 +45,7 @@ def setup_environment(model, **custom_env_vars):
     env.update(custom_env_vars)
 
     os.environ.update(env)
+    #TODO: dont return env?
     return env
 
 
@@ -69,7 +72,11 @@ def run(model, script, duration):
           "--duration",
           duration
         ],
-        check=True)
+        check=True,
+        stdout=LOG_FILE.fileno(),
+        stderr=LOG_FILE.fileno(),
+        pass_fds=(LOG_FILE.fileno(), )
+        )
     
     print(f"{'='*60}")
     print("Complete!")
