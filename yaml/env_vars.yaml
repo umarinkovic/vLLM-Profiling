@@ -1,4 +1,5 @@
 # env_vars.yaml
+
 # defines which env vars will be passed from docker_tool to the running container
 
 env_vars:
@@ -7,3 +8,4 @@ env_vars:
   - SP_MAX_TOKENS
   - MAX_MODEL_LEN
   - HF_TOKEN
+  - VLLM_WORKER_MULTIPROC_METHOD
