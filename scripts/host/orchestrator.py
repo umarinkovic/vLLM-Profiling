@@ -14,6 +14,17 @@ import os
 
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 
+def prepare_tokens():
+    tokens_path = PROJECT_ROOT / ".config" / "tokens.yaml"
+    if not tokens_path.exists():
+        print(f"No {tokens_path} file found.")
+        return
+    with tokens_path.open("r") as f:
+        tokens = yaml.safe_load(f)["tokens"]
+    for key, value in tokens.items():
+        os.environ[key] = value
+
+
 def parse_gpus():
     file_path = PROJECT_ROOT / ".config" / "gpus.yaml"
     if not file_path.exists():
@@ -42,6 +53,7 @@ def run(docker_image, num_procs, script, duration, models_filter):
                 device_task_queue_map[gpu["device"]].append({"model": model, "env": model.get('env', {}) | gpu.get('env', {})})
 
     device_to_name_map = {gpu["device"] : gpu["name"] for gpu in gpus}
+    prepare_tokens()
 
     # TODO: implement parallelism, currently writing single threaded but will be expanded later
     # to include the possibility of starting multiple profiling tasks on different GPUs

@@ -6,3 +6,4 @@ env_vars:
   - SP_TEMPERATURE
   - SP_MAX_TOKENS
   - MAX_MODEL_LEN
+  - HF_TOKEN
