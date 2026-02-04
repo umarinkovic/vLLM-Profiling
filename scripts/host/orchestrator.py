@@ -22,16 +22,16 @@ def parse_gpus():
         return [gpu for gpu in yaml.safe_load(f)["gpus"] if not gpu.get("disabled", False)]
     
 
-def parse_models():
+def parse_models(models_filter = None):
     file_path = PROJECT_ROOT / "yaml" / "models.yaml"
     if not file_path.exists():
-        print(f"No {file_path} found.")
+        raise FileNotFoundError(f"No {file_path} found.")
     with open(file_path, "r") as f:
-        return yaml.safe_load(f)[f"models"]
+        return [model for model in yaml.safe_load(f)[f"models"] if not models_filter or model["name"] in models_filter]
     
-def run(docker_image, num_procs, script, duration):
+def run(docker_image, num_procs, script, duration, models_filter):
     gpus = parse_gpus()
-    models = parse_models()
+    models = parse_models(models_filter)
 
     # create a map {device_name -> queue({model_to_run, environment})}
     device_task_queue_map = defaultdict(deque)
@@ -90,12 +90,13 @@ def main():
     parser.add_argument("--duration",
                         help="Duration in seconds for which to run each model. (default=60s)",
                         default=60)
-    # parser.add_argument("models",
-    #                     help="Models to run. If left empty, runs all models from the models.yaml file.")
+    parser.add_argument("models_filter",
+                         help="Subset of models to run from the models.yaml file. If left empty, runs all models.",
+                         nargs='*')
     
     args = parser.parse_args()
 
-    run(args.docker_image, args.num_procs, args.script, args.duration)
+    run(args.docker_image, args.num_procs, args.script, args.duration, args.models_filter)
 
 
 if __name__ == "__main__":
