@@ -17,8 +17,7 @@ from model_utilities.preprocess import load_prompts
 def run(duration, prompts):
     llm = LLM(
         model="google/embeddinggemma-300m", 
-        runner="pooling",
-        attention_backend="TORCH_SDPA"
+        runner="pooling"
     )
 
     outputs = []
