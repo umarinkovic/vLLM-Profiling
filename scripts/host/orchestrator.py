@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 
 """
-orhcestrator.py - script for automatically running all models in .config/models.yaml on all
-gpus listed in gpus.yaml 
+
+orhcestrator.py - script for running models on the available GPUs automatically
+
+This script orchestrates and executes the configured models on the configured GPUs.
+
 """
 
 import argparse
@@ -69,9 +72,8 @@ def run(docker_image, num_procs, script, duration, models_filter):
                 subprocess.call([
                     "scripts/host/docker_tool.py",
                     "run", 
-                    # TODO: enable correct parsing of --image-name argument (gets forwarded as remainder arg to script for some reason?)
-                    # "--image-name",
-                    # docker_image,
+                    "--image-name",
+                    docker_image,
                     "--device-name",
                     device_to_name_map[device],
                     "--device",

@@ -1,6 +1,18 @@
 #!/usr/bin/env python3
 
-# docker_tool.py is a script used to build and run docker images 
+"""
+
+docker_tool.py is a script used to run provided docker images. In the future it might
+also be used to build custom dockerfiles as well as run them in one command.
+
+Current usage:
+
+scripts/host/docker_tool.py --device /dev/dri/<folder_of_desired_device_to_mount>
+
+While it can be used standalone, it's mostly used by orchestrator.py to run the entire config on all
+available GPUs.
+
+"""
 
 import argparse
 import subprocess
@@ -72,7 +84,6 @@ def run_container(args, script_args):
     print(f"Mounting ./prompts -> {prompts_container}")
 
     # logs dir
-    # TODO: parametrize this / add env var for customization?
     logs_container = str(container_workspace / "logs")
     cmd.extend(["-v", f"./.logs:{logs_container}"])
     print(f"Mounting ./.logs -> {logs_container}")
@@ -94,11 +105,6 @@ def run_container(args, script_args):
     )
 
     if args.script:
-        # TODO: enable executing any script not just python (parsing currently gets messed up so we use python3 explicitly)
-        # full_script_cmd = [f"/workspace/scripts/{args.script}"] + script_args[1:]
-        # full_script_str = " ".join(shlex.quote(arg) for arg in full_script_cmd)
-        # cmd.extend(["/bin/bash", "-c", full_script_str])
-
         # removing prefix -- from remainder args
         script_args = script_args[1:]
         shell_cmd.append(
@@ -132,7 +138,7 @@ def parse_args():
     run_parser.add_argument("--script", help="Script to run inside container.")
     run_parser.add_argument("--hf-cache-dir", help="Location of host folder which will be mounter under /root/.cache/huggingface in docker container.", default="./.cache/huggingface")
     run_parser.add_argument("--device", help="/dev/dri/<dir> location of the device", required=True)
-    run_parser.add_argument("--device-name", help="Actual name of the device.", required=True)
+    run_parser.add_argument("--device-name", help="Actual name of the device.")
 
     return parser.parse_known_args()
 

@@ -1,6 +1,14 @@
 # env_vars.yaml
 
 # defines which env vars will be passed from docker_tool to the running container
+# whenever a new env var is passed through the yaml config files it needs to be listed here as well
+
+# TODO: refactor the mechanism for passing env vars to not include manually listing env vars here
+# one idea is that this file (or a file used for this purpose) is generated per invocation
+# and that all yaml-set env-vars are written to the file dynamically
+# in fact it probably makes sense to parse the yaml env, write the final env inside orchestrator.py
+# with a folder name something like .config/env/device/model.yaml and then just read it from there
+# inside docker_tool.py
 
 env_vars:
   - GPU_MEM_UTIL
@@ -9,3 +17,12 @@ env_vars:
   - MAX_MODEL_LEN
   - HF_TOKEN
   - VLLM_WORKER_MULTIPROC_METHOD
+  - VLLM_V1_USE_PREFILL_DECODE_ATTENTION
+  - AMD_LOG_LEVEL
+  - AMD_SERIALIZE_KERNEL
+  - AMD_SERIALIZE_COPY
+  - HSA_ENABLE_DEBUG
+  - HSA_TOOLS_LIB
+  - NCCL_NVLS_ENABLE
+  - TORCH_NCCL_AVOID_RECORD_STREAMS
+  - PYTORCH_CUDA_ALLOC_CONF

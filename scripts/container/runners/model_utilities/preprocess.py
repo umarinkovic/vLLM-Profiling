@@ -1,3 +1,9 @@
+"""
+
+preprocess.py - utilities for pre-processing the prompts written inside the yaml folder
+
+"""
+
 import yaml
 from PIL import Image
 

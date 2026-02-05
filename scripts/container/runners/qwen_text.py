@@ -43,7 +43,6 @@ def run(model, duration, prompts):
 def main():
     parser = argparse.ArgumentParser(description="Run Qwen3 text models")
 
-    # TODO: potentially get rid of this argument since its only used in this script
     parser.add_argument(
         "--model",
         help="Model name",
