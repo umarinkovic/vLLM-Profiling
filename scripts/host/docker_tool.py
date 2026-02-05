@@ -61,9 +61,11 @@ def run_container(args, script_args):
     interactive = not args.script
     if interactive:
         cmd.append("-it")
-    """TODO: remove or fix this, needed for parallelism probably
+    """
+    TODO: remove or fix this, needed for parallelism probably
     else:
-        cmd.append("-d") """
+        cmd.append("-d")
+    """
 
     # mount appropriate gpu
     cmd.extend(["--device", args.device])

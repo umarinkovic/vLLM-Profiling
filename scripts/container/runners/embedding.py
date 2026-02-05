@@ -8,24 +8,30 @@ Script for running embedding models (tested on Qwen-Embedding-4B)
 """
 
 from vllm import LLM
-import argparse
+import sys
 import time
-from pathlib import Path
-from model_utilities.preprocess import load_prompts
+from runner_utilities.preprocess import load_prompts
+from runner_utilities.argparse import parse_and_validate_args
 
 
-def run(duration, prompts):
-    llm = LLM(model="google/embeddinggemma-300m", runner="pooling")
+def run(model, duration, iterations, prompts):
+    llm = LLM(model=model, runner="pooling")
 
     outputs = []
-    iterations = 0
+    iteration_count = 0
     start = time.monotonic()
 
-    # yield prompts cyclically until timer expires
+    # yield prompts cyclically until condition is no longer true
     def prompt_generator():
+        def condition():
+            if duration:
+                return time.monotonic() - start < duration
+            elif iterations:
+                return iteration_count < iterations
+
         while True:
             for prompt in prompts:
-                if time.monotonic() - start < duration:
+                if condition():
                     yield prompt
                 else:
                     return
@@ -34,28 +40,24 @@ def run(duration, prompts):
         outputs.extend(llm.embed(prompt))
         iterations += 1
 
-    # print(f"Sample output from {model}: {outputs[0].outputs[0].text}")
     print(
         f"Total runtime: {time.monotonic() - start:.2f}s for {iterations} iterations."
     )
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Run Qwen3 text models")
-
-    parser.add_argument(
-        "--duration",
-        help="Duration of time (seconds) the model should be running",
-        type=int,
-        default=60,
+    args = parse_and_validate_args(
+        description="Script for running embedding models.", argv=sys.argv
     )
-    # TODO: all model scripts should take arguments for prompts yaml path, and optionally mm resources
-    # TODO: add funciton to utils that constructs these common args with optinal --model-name and
-    # TODO: --image-dir
 
-    args, _ = parser.parse_known_args()
-    prompts = load_prompts(Path("/workspace/yaml/prompts/embedding.yaml"))
-    run(args.duration, prompts)
+    prompts = load_prompts(args.prompts_path)
+
+    run(
+        model=args.model,
+        duration=args.duration,
+        iterations=args.iterations,
+        prompts=prompts,
+    )
 
 
 if __name__ == "__main__":

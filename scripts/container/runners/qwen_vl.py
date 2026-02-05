@@ -11,11 +11,12 @@ import torch
 from vllm import LLM, SamplingParams
 from qwen_vl_utils import process_vision_info
 from transformers import AutoProcessor
-import argparse
+import sys
 import time
 import os
-from pathlib import Path
-from model_utilities.preprocess import load_prompts, load_images, prepare_prompts
+from runner_utilities.preprocess import load_prompts, prepare_prompts, load_images
+from runner_utilities.argparse import parse_and_validate_args
+from runner_utilities.runner_tools import generate_and_collect
 
 
 def prepare_inputs_for_vllm(prompts, processor):
@@ -43,9 +44,7 @@ def prepare_inputs_for_vllm(prompts, processor):
     }
 
 
-def run(duration, prompts):
-
-    model = "Qwen/Qwen3-VL-4B-Instruct"
+def run(model, duration, iterations, prompts):
 
     llm = LLM(
         model=model,
@@ -64,41 +63,38 @@ def run(duration, prompts):
         stop_token_ids=[],
     )
 
-    outputs = []
-    iterations = 0
-    start = time.monotonic()
-
-    while time.monotonic() - start < duration:
-        outputs.extend(llm.generate(prompts, sampling_params))
-        iterations += 1
-
-    print(f"Sample output from {model}: {outputs[0].outputs[0].text}")
-    print(
-        f"Total runtime: {time.monotonic() - start:.2f}s for {iterations} iterations."
+    outputs = generate_and_collect(
+        model=model,
+        duration=duration,
+        iterations=iterations,
+        llm=llm,
+        prompts=prompts,
+        sampling_params=sampling_params,
+        print_example=True,
     )
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Run Qwen3-VL models")
-
-    parser.add_argument(
-        "--duration",
-        help="Duration of time (seconds) the model should be running",
-        type=int,
-        default=60,
+    args = parse_and_validate_args(
+        description="Script for running Qwen-VL models.", resources=True, argv=sys.argv
     )
 
-    args, _ = parser.parse_known_args()
     prompts = prepare_prompts(
-        load_prompts(Path("/workspace/yaml/prompts/multimodal.yaml")),
-        load_images(Path("/workspace/images/multimodal")),
+        load_prompts(args.prompts_path),
+        load_images(args.media_path),
     )
+
     processor = AutoProcessor.from_pretrained("Qwen/Qwen3-VL-4B-Instruct")
     parsed_prompts = [
         prepare_inputs_for_vllm(prompt, processor) for prompt in [prompts]
     ]
 
-    run(args.duration, parsed_prompts)
+    run(
+        model=args.model,
+        duration=args.duration,
+        iterations=args.iterations,
+        prompts=parsed_prompts,
+    )
 
 
 if __name__ == "__main__":

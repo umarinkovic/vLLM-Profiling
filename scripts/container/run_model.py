@@ -50,7 +50,7 @@ def setup_environment(model, **custom_env_vars):
     return env
 
 
-def run(model, script, duration):
+def run(model, script, extra_args):
     global GPU_NAME
     environment = setup_environment(model)
 
@@ -65,15 +65,8 @@ def run(model, script, duration):
     print(f"PyTorch: {torch.__version__}\n")
 
     print(f"Calling: {script}")
-
     subprocess.run(
-        [
-            f"/workspace/scripts/runners/{script}",
-            "--model",
-            model,
-            "--duration",
-            duration,
-        ],
+        [f"/workspace/scripts/runners/{script}", "--model", model, *extra_args],
         check=True,
         stdout=LOG_FILE.fileno(),
         stderr=LOG_FILE.fileno(),
@@ -88,21 +81,14 @@ def run(model, script, duration):
 
 def main():
     parser = argparse.ArgumentParser(description="Run vLLM inference on a model.")
-
     parser.add_argument("--model", help="Model name", required=True, type=str)
     parser.add_argument(
         "--script", help="Script for running the model.", required=True, type=str
     )
-    parser.add_argument(
-        "--duration",
-        help="Duration in seconds for which to run the model. (deafult=60s)",
-        default="60",
-        type=str,
-    )
 
-    args = parser.parse_args()
+    args, extra_args = parser.parse_known_args()
 
-    run(args.model, args.script, args.duration)
+    run(args.model, args.script, extra_args)
 
 
 if __name__ == "__main__":

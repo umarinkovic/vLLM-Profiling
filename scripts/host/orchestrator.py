@@ -48,10 +48,11 @@ def parse_models(models_filter=None):
             model
             for model in yaml.safe_load(f)[f"models"]
             if not models_filter or model["name"] in models_filter
+            # TODO: add regex to the models_filter
         ]
 
 
-def run(docker_image, num_procs, script, duration, models_filter):
+def run(docker_image, num_procs, script, duration, iterations, models_filter):
     gpus = parse_gpus()
     models = parse_models(models_filter)
 
@@ -75,16 +76,24 @@ def run(docker_image, num_procs, script, duration, models_filter):
         for device in devices:
             task_queue = device_task_queue_map[device]
             if task_queue:
-                task = model = task_queue.popleft()
+                task = task_queue.popleft()
                 model = task["model"]
                 env = task["env"]
+                iter_dur_arg = (
+                    ["--duration", str(duration)]
+                    if duration
+                    else ["--iterations", str(iterations)]
+                )
                 script_args = [
-                    "--model",
-                    model["name"],
                     "--script",
                     model["script"],
-                    "--duration",
-                    str(duration),
+                    "--model",
+                    model["name"],
+                    "--prompts-path",
+                    f"/workspace/yaml/prompts/{model['type']}.yaml",
+                    "--resources-path",
+                    f"/workspace/images/{model['type']}",
+                    *iter_dur_arg,
                 ]
                 subprocess.call(
                     [
@@ -127,10 +136,15 @@ def main():
         help="Name of the script to run inside the containers.",
         default="run_model.py",
     )
-    parser.add_argument(
+    time_group = parser.add_mutually_exclusive_group(required=True)
+    time_group.add_argument
+    time_group.add_argument(
         "--duration",
-        help="Duration in seconds for which to run each model. (default=60s)",
-        default=60,
+        help="Duration of time (seconds) the model should be running",
+        type=int,
+    )
+    time_group.add_argument(
+        "--iterations", help="Number of iterations the model should run for", type=int
     )
     parser.add_argument(
         "models_filter",
@@ -139,13 +153,15 @@ def main():
     )
 
     args = parser.parse_args()
+    # TODO: remove default docker image from this file (put it in some config)
 
     run(
-        args.docker_image,
-        args.num_procs,
-        args.script,
-        args.duration,
-        args.models_filter,
+        docker_image=args.docker_image,
+        num_procs=args.num_procs,
+        script=args.script,
+        duration=args.duration,
+        iterations=args.iterations,
+        models_filter=args.models_filter,
     )
 
 

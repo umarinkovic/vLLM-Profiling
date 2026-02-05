@@ -9,22 +9,24 @@ Script for running Deepseek-OCR image-to-text model.
 
 from vllm import LLM, SamplingParams
 from vllm.model_executor.models.deepseek_ocr import NGramPerReqLogitsProcessor
-import argparse
-import time
-from pathlib import Path
+
 import os
+import sys
 
-from model_utilities.preprocess import load_prompts, load_images, prepare_prompts
+from runner_utilities.preprocess import load_prompts, load_images, prepare_prompts
+from runner_utilities.argparse import parse_and_validate_args
+from runner_utilities.runner_tools import generate_and_collect
 
 
-def run(duration, prompts):
+def run(model, duration, iterations, prompts):
     llm = LLM(
-        model="deepseek-ai/DeepSeek-OCR",
+        model=model,
         enable_prefix_caching=False,
         mm_processor_cache_gb=0,
         logits_processors=[NGramPerReqLogitsProcessor],
     )
 
+    # TODO: extract os.getenv and cast in a separate fun shared across runners
     sampling_params = SamplingParams(
         temperature=float(os.getenv("SP_TEMPERATURE")),
         max_tokens=int(os.getenv("SP_MAX_TOKENS")),
@@ -37,41 +39,36 @@ def run(duration, prompts):
         skip_special_tokens=False,
     )
 
-    outputs = []
-    iterations = 0
-    start = time.monotonic()
-
-    while time.monotonic() - start < duration:
-        outputs.extend(llm.generate(prompts, sampling_params))
-        iterations += 1
-
-    print(f"Sample output from Deepseek-OCR: {outputs[0].outputs[0].text}")
-    print(
-        f"Total runtime: {time.monotonic() - start:.2f}s for {iterations} iterations."
+    _ = generate_and_collect(
+        model=model,
+        duration=duration,
+        iterations=iterations,
+        llm=llm,
+        prompts=prompts,
+        sampling_params=sampling_params,
+        print_example=True,
     )
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Run Deepseek-OCR image-to-text model."
+    args = parse_and_validate_args(
+        description="Run Deepseek-OCR image-to-text model.",
+        resources=True,
+        argv=sys.argv,
     )
-
-    parser.add_argument(
-        "--duration",
-        help="Duration of time (seconds) the model should be running",
-        type=int,
-        default=60,
-    )
-
-    args, _ = parser.parse_known_args()
 
     prompts = prepare_prompts(
         load_prompts(
-            (Path("/workspace/yaml/prompts/image-to-text.yaml")),
-            load_images(Path("/workspace/images/image-to-text")),
+            args.prompts_path,
+            load_images(args.resources_path),
         )
     )
-    run(args.duration, prompts)
+    run(
+        model=args.model,
+        duration=args.duration,
+        iterations=args.iterations,
+        prompts=prompts,
+    )
 
 
 if __name__ == "__main__":
