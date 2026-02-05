@@ -46,6 +46,7 @@ def run_container(args, script_args):
         *[item for key, value in env.items() for item in ("-e", f"{key}={value}")],
         "--rm",
         "--ipc=host",
+        "--network=host",
         "--group-add",
         "video",
         "--cap-add=SYS_PTRACE",
