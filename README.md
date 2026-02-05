@@ -96,7 +96,7 @@ All logs, traces, and profiling outputs are written here.
 Directory layout:
 
 ```
-.logs/ 
+.logs/
   └── GPU_NAME/
       └── MODEL_NAME/
           └── <log_and_trace_files>

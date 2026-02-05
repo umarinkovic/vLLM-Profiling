@@ -5,13 +5,13 @@ echo "GENERATE THE FILE MANUALLY"
 echo "EXAMPLE:"
 echo "gpus:
         0:
-          name: Radeon RX 7900 XTX 
+          name: Radeon RX 7900 XTX
           device: /dev/dri/renderD128
         1:
-          name: AMD Radeon RX 9070 XT  
+          name: AMD Radeon RX 9070 XT
           device: /dev/dri/renderD129
         2:
-          name: AMD Radeon RX 6700 XT          
+          name: AMD Radeon RX 6700 XT
           device: /dev/dri/renderD130"
 # TODO: ENABLE USING ROCMINFO
 

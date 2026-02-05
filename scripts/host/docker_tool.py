@@ -23,34 +23,40 @@ import yaml
 
 ROOT_DIR = Path(__file__).parent.parent.parent
 
+
 def prepare_env():
     path_to_env_vars = ROOT_DIR / "yaml" / "env_vars.yaml"
     with open(path_to_env_vars, "r") as f:
         env_vars_to_propagate = yaml.safe_load(f)["env_vars"]
-    docker_env = {env_var: os.getenv(env_var) for env_var in env_vars_to_propagate if os.getenv(env_var)}
+    docker_env = {
+        env_var: os.getenv(env_var)
+        for env_var in env_vars_to_propagate
+        if os.getenv(env_var)
+    }
     return docker_env
+
 
 def run_container(args, script_args):
     env = prepare_env()
     cmd = [
-            "docker",
-            "run",
-            # first, unpack environment key-value pairs into a list of k=v strings
-            # then unpack the kv pairs into lists of ["-e", kv]
-            *[
-                item
-                for key, value in env.items()
-                for item in ("-e", f"{key}={value}")
-            ],
-            "--rm",
-            "--ipc=host",
-            "--group-add", "video",
-            "--cap-add=SYS_PTRACE",
-            "--security-opt", "seccomp=unconfined",
-            "--device", "/dev/kfd",
-            "-w", "/workspace"
-            ]
-    
+        "docker",
+        "run",
+        # first, unpack environment key-value pairs into a list of k=v strings
+        # then unpack the kv pairs into lists of ["-e", kv]
+        *[item for key, value in env.items() for item in ("-e", f"{key}={value}")],
+        "--rm",
+        "--ipc=host",
+        "--group-add",
+        "video",
+        "--cap-add=SYS_PTRACE",
+        "--security-opt",
+        "seccomp=unconfined",
+        "--device",
+        "/dev/kfd",
+        "-w",
+        "/workspace",
+    ]
+
     interactive = not args.script
     if interactive:
         cmd.append("-it")
@@ -62,14 +68,14 @@ def run_container(args, script_args):
     cmd.extend(["--device", args.device])
 
     # set env var to remember device name
-    cmd.extend(["-e", f'DEVICE_NAME={args.device_name}'])
+    cmd.extend(["-e", f"DEVICE_NAME={args.device_name}"])
 
     # mount dirs from host to container
     container_workspace = Path("/workspace")
 
     # huggingface cache dir
-    hf_cache_container = "/root/.cache/huggingface"   
-    Path(args.hf_cache_dir).mkdir(parents=True, exist_ok=True) 
+    hf_cache_container = "/root/.cache/huggingface"
+    Path(args.hf_cache_dir).mkdir(parents=True, exist_ok=True)
     cmd.extend(["-v", f"{args.hf_cache_dir}:{hf_cache_container}"])
     print(f"Mounting HuggingFace cache: {args.hf_cache_dir} -> {hf_cache_container}")
 
@@ -113,38 +119,52 @@ def run_container(args, script_args):
     else:
         shell_cmd.append("bash")
 
-    cmd.extend([
-        args.image_name,
-        "/bin/bash",
-        "-c",
-        " && ".join(shell_cmd),
-    ])
-    
+    cmd.extend(
+        [
+            args.image_name,
+            "/bin/bash",
+            "-c",
+            " && ".join(shell_cmd),
+        ]
+    )
+
     print(f"Running Docker container: {' '.join(cmd)}")
     result = subprocess.run(cmd)
     if result.returncode != 0:
         print("Docker run failed.", file=sys.stderr)
         sys.exit(result.returncode)
 
+
 def parse_args():
-    parser = argparse.ArgumentParser(description="Tool for building and running docker images.")
-    
+    parser = argparse.ArgumentParser(
+        description="Tool for building and running docker images."
+    )
+
     subparsers = parser.add_subparsers(dest="command", required=True)
-    
+
     run_parser = subparsers.add_parser("run", help="Run an existing Docker image.")
-    run_parser.add_argument("--image-name", 
-                            help="Docker image to run", 
-                            default="hyoon11/vllm-dev:20260121_43_py3.12_torch2.9_triton3.5_navi_upstream_6a09612_ubuntu24.04")
+    run_parser.add_argument(
+        "--image-name",
+        help="Docker image to run",
+        default="hyoon11/vllm-dev:20260121_43_py3.12_torch2.9_triton3.5_navi_upstream_6a09612_ubuntu24.04",
+    )
     run_parser.add_argument("--script", help="Script to run inside container.")
-    run_parser.add_argument("--hf-cache-dir", help="Location of host folder which will be mounter under /root/.cache/huggingface in docker container.", default="./.cache/huggingface")
-    run_parser.add_argument("--device", help="/dev/dri/<dir> location of the device", required=True)
+    run_parser.add_argument(
+        "--hf-cache-dir",
+        help="Location of host folder which will be mounter under /root/.cache/huggingface in docker container.",
+        default="./.cache/huggingface",
+    )
+    run_parser.add_argument(
+        "--device", help="/dev/dri/<dir> location of the device", required=True
+    )
     run_parser.add_argument("--device-name", help="Actual name of the device.")
 
     return parser.parse_known_args()
 
+
 def main():
     args, extra_args = parse_args()
-    
+
     if args.command == "run":
         if not args.hf_cache_dir.endswith(".cache/huggingface"):
             print("Huggingface cache dir invalid: must end with .cache/huggingface")
@@ -154,6 +174,7 @@ def main():
         # TODO: implement build functionality?
         print("Currently only running existing docker images is supported.")
         exit(1)
+
 
 if __name__ == "__main__":
     main()

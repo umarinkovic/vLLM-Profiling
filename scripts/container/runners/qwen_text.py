@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-qwwen_text.py 
+qwwen_text.py
 
 Script for running Qwen3 text models.
 
@@ -21,12 +21,12 @@ def run(model, duration, prompts):
     llm = LLM(
         model=model,
         gpu_memory_utilization=float(os.getenv("GPU_MEM_UTIL")),
-        max_model_len=int(os.getenv("MAX_MODEL_LEN"))
+        max_model_len=int(os.getenv("MAX_MODEL_LEN")),
     )
 
     sampling_params = SamplingParams(
         temperature=float(os.getenv("SP_TEMPERATURE")),
-        max_tokens=int(os.getenv("SP_MAX_TOKENS"))
+        max_tokens=int(os.getenv("SP_MAX_TOKENS")),
     )
 
     outputs = []
@@ -38,22 +38,20 @@ def run(model, duration, prompts):
         iterations += 1
 
     print(f"Sample output from {model}: {outputs[0].outputs[0].text}")
-    print(f"Total runtime: {time.monotonic() - start:.2f}s for {iterations} iterations.")
+    print(
+        f"Total runtime: {time.monotonic() - start:.2f}s for {iterations} iterations."
+    )
+
 
 def main():
     parser = argparse.ArgumentParser(description="Run Qwen3 text models")
 
-    parser.add_argument(
-        "--model",
-        help="Model name",
-        required=True,
-        type=str
-    )
+    parser.add_argument("--model", help="Model name", required=True, type=str)
     parser.add_argument(
         "--duration",
         help="Duration of time (seconds) the model should be running",
         type=int,
-        default=60
+        default=60,
     )
 
     args, _ = parser.parse_known_args()
@@ -65,6 +63,7 @@ def main():
     prompts = load_prompts(Path("/workspace/yaml/prompts/text.yaml"))
 
     run(args.model, args.duration, prompts)
+
 
 if __name__ == "__main__":
     main()

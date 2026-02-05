@@ -13,11 +13,9 @@ import time
 from pathlib import Path
 from model_utilities.preprocess import load_prompts
 
+
 def run(duration, prompts):
-    llm = LLM(
-        model="google/embeddinggemma-300m", 
-        runner="pooling"
-    )
+    llm = LLM(model="google/embeddinggemma-300m", runner="pooling")
 
     outputs = []
     iterations = 0
@@ -37,7 +35,10 @@ def run(duration, prompts):
         iterations += 1
 
     # print(f"Sample output from {model}: {outputs[0].outputs[0].text}")
-    print(f"Total runtime: {time.monotonic() - start:.2f}s for {iterations} iterations.")
+    print(
+        f"Total runtime: {time.monotonic() - start:.2f}s for {iterations} iterations."
+    )
+
 
 def main():
     parser = argparse.ArgumentParser(description="Run Qwen3 text models")
@@ -46,7 +47,7 @@ def main():
         "--duration",
         help="Duration of time (seconds) the model should be running",
         type=int,
-        default=60
+        default=60,
     )
     # TODO: all model scripts should take arguments for prompts yaml path, and optionally mm resources
     # TODO: add funciton to utils that constructs these common args with optinal --model-name and
@@ -55,6 +56,7 @@ def main():
     args, _ = parser.parse_known_args()
     prompts = load_prompts(Path("/workspace/yaml/prompts/embeddings.yaml"))
     run(args.duration, prompts)
+
 
 if __name__ == "__main__":
     main()
