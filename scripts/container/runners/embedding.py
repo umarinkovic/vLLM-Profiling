@@ -54,7 +54,7 @@ def main():
     # TODO: --image-dir
 
     args, _ = parser.parse_known_args()
-    prompts = load_prompts(Path("/workspace/yaml/prompts/embeddings.yaml"))
+    prompts = load_prompts(Path("/workspace/yaml/prompts/embedding.yaml"))
     run(args.duration, prompts)
 
 
