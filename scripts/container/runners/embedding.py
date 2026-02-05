@@ -3,7 +3,7 @@
 """
 gemma_embeddings.py
 
-Script for running Google's embeddinggemmma model.
+Script for running embedding models (tested on Qwen-Embedding-4B)
 
 """
 
@@ -11,7 +11,6 @@ from vllm import LLM
 import argparse
 import time
 from pathlib import Path
-import os
 from model_utilities.preprocess import load_prompts
 
 def run(duration, prompts):
@@ -49,6 +48,9 @@ def main():
         type=int,
         default=60
     )
+    # TODO: all model scripts should take arguments for prompts yaml path, and optionally mm resources
+    # TODO: add funciton to utils that constructs these common args with optinal --model-name and
+    # TODO: --image-dir
 
     args, _ = parser.parse_known_args()
     prompts = load_prompts(Path("/workspace/yaml/prompts/embeddings.yaml"))

@@ -30,8 +30,8 @@ models:
       NCCL_NVLS_ENABLE: "0"
       TORCH_NCCL_AVOID_RECORD_STREAMS: "1"
       PYTORCH_CUDA_ALLOC_CONF: "max_split_size_mb:128"
-  - name: google/embeddinggemma-300m
-    type: embeddings
+  - name: Qwen/Qwen3-Embedding-4B
+    type: embedding
     env:
       MAX_MODEL_LEN: '30000'
-    script: gemma_embeddings.py
+    script: embedding.py

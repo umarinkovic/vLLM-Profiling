@@ -66,7 +66,7 @@ def run(model, script, duration):
     print(f"Calling: {script}")
 
     subprocess.run(
-        [f"/workspace/scripts/models/{script}",
+        [f"/workspace/scripts/runners/{script}",
          "--model",
          model,
           "--duration",
