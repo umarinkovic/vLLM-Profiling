@@ -13,13 +13,14 @@ import subprocess
 import sys
 import argparse
 from utilities import Tee
-import torch
 
 
 GPU_NAME = ""
 LOG_FILE = ""
 
 
+# TODO: move this to docker_tool.py; re-asses whether this script is needed or if commonalities can be
+# mut into a seperate file, env setup in dockertool, and runners executed directly
 def setup_environment(model, **custom_env_vars):
     # TODO: add support for windows paths
     global GPU_NAME
@@ -53,6 +54,7 @@ def setup_environment(model, **custom_env_vars):
 def run(model, script, extra_args):
     global GPU_NAME
     environment = setup_environment(model)
+    import torch
 
     print(f"\n{'='*60}")
     print(f"Model: {model}")
@@ -71,6 +73,7 @@ def run(model, script, extra_args):
         stderr=subprocess.STDOUT,
         text=True,
         bufsize=1,
+        env=os.environ.copy(),
     )
 
     for line in proc.stdout:
