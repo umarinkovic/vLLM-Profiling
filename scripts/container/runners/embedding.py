@@ -10,12 +10,18 @@ Script for running embedding models (tested on Qwen-Embedding-4B)
 from vllm import LLM
 import sys
 import time
+import os
 from runner_utilities.preprocess import load_prompts
 from runner_utilities.argparse import parse_and_validate_args
 
 
 def run(model, duration, iterations, prompts):
-    llm = LLM(model=model, runner="pooling")
+    llm = LLM(
+        model=model,
+        runner="pooling",
+        gpu_memory_utilization=float(os.getenv("GPU_MEM_UTIL")),
+        max_model_len=int(os.getenv("MAX_MODEL_LEN")),
+    )
 
     outputs = []
     iteration_count = 0
@@ -38,7 +44,7 @@ def run(model, duration, iterations, prompts):
 
     for prompt in prompt_generator():
         outputs.extend(llm.embed(prompt))
-        iterations += 1
+        iteration_count += 1
 
     print(
         f"Total runtime: {time.monotonic() - start:.2f}s for {iterations} iterations."
