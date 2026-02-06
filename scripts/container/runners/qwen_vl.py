@@ -81,7 +81,7 @@ def main():
 
     prompts = prepare_prompts(
         load_prompts(args.prompts_path),
-        load_images(args.media_path),
+        load_images(args.resources_path),
     )
 
     processor = AutoProcessor.from_pretrained("Qwen/Qwen3-VL-4B-Instruct")

@@ -65,13 +65,20 @@ def run(model, script, extra_args):
     print(f"PyTorch: {torch.__version__}\n")
 
     print(f"Calling: {script}")
-    subprocess.run(
+    proc = subprocess.Popen(
         [f"/workspace/scripts/runners/{script}", "--model", model, *extra_args],
-        check=True,
-        stdout=LOG_FILE.fileno(),
-        stderr=LOG_FILE.fileno(),
-        pass_fds=(LOG_FILE.fileno(),),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        bufsize=1,
     )
+
+    for line in proc.stdout:
+        sys.stdout.write(line)
+
+    proc.stdout.close()
+    if proc.wait() != 0:
+        raise subprocess.CalledProcessError(proc.returncode, proc.args)
 
     print(f"{'='*60}")
     print("Complete!")

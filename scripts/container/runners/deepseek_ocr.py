@@ -58,10 +58,8 @@ def main():
     )
 
     prompts = prepare_prompts(
-        load_prompts(
-            args.prompts_path,
-            load_images(args.resources_path),
-        )
+        load_prompts(args.prompts_path),
+        load_images(args.resources_path),
     )
     run(
         model=args.model,
