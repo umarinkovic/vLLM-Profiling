@@ -13,7 +13,7 @@ models:
     script: qwen_vl.py
     env:
       VLLM_WORKER_MULTIPROC_METHOD: 'spawn'
-      MAX_MODEL_LEN: '30000'
+      MAX_MODEL_LEN: '20000'
       SP_TEMPERATURE: '0.0'
       SP_MAX_TOKENS: '1024'
   - name: deepseek-ai/DeepSeek-OCR
