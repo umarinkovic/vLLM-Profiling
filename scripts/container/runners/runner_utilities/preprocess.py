@@ -18,7 +18,7 @@ def load_images(images_path):
             continue
 
         with Image.open(img_file).convert("RGB") as img:
-            image_dict[img_file.stem] = img
+            image_dict[img_file.stem] = img.resize((224, 224))
 
     return image_dict
 
