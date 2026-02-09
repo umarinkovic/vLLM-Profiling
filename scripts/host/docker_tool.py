@@ -14,6 +14,8 @@ available GPUs.
 
 """
 
+# TODO: add logging to files of the docker run command
+
 import argparse
 import subprocess
 import sys
@@ -45,6 +47,7 @@ def run_container(args, script_args):
         # then unpack the kv pairs into lists of ["-e", kv]
         *[item for key, value in env.items() for item in ("-e", f"{key}={value}")],
         "--rm",
+        "--pull=missing",
         "--ipc=host",
         "--network=host",
         "--group-add",
