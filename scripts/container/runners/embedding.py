@@ -16,11 +16,12 @@ from runner_utilities.argparse import parse_and_validate_args
 
 
 def run(model, duration, iterations, prompts):
+    max_model_len = int(os.getenv("MAX_MODEL_LEN", 0))
     llm = LLM(
         model=model,
         runner="pooling",
         gpu_memory_utilization=float(os.getenv("GPU_MEM_UTIL")),
-        max_model_len=int(os.getenv("MAX_MODEL_LEN")),
+        max_model_len=max_model_len if max_model_len else None,
     )
 
     outputs = []
