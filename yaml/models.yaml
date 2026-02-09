@@ -1,6 +1,10 @@
 # models.yaml
 # defines the models and their default configurations
 
+# TODO: rework the entire env-var passing methodology, currently models.yaml, gpus.yaml/env and gpus.yaml/model_name
+# all compete, with the inverse of the order listed here being the priority, that is:
+# gpus.yaml/gpu/model > gpus.yaml/gpu/env > models.yaml/env
+
 models:
   - name: Qwen/Qwen3-4B
     type: text
@@ -16,22 +20,27 @@ models:
       MAX_MODEL_LEN: '20000'
       SP_TEMPERATURE: '0.0'
       SP_MAX_TOKENS: '1024'
-  - name: deepseek-ai/DeepSeek-OCR
-    type: image-to-text
-    script: deepseek_ocr.py
-    env:
-      SP_TEMPERATURE: '0.0'
-      SP_MAX_TOKENS: '1024'
-      AMD_LOG_LEVEL: "3"
-      AMD_SERIALIZE_KERNEL: "3"
-      AMD_SERIALIZE_COPY: "3"
-      HSA_ENABLE_DEBUG: "1"
-      HSA_TOOLS_LIB: "/opt/rocm/lib/librocm-debug-agent.so.2"
-      NCCL_NVLS_ENABLE: "0"
-      TORCH_NCCL_AVOID_RECORD_STREAMS: "1"
-      PYTORCH_CUDA_ALLOC_CONF: "max_split_size_mb:128"
+#  - name: deepseek-ai/DeepSeek-OCR
+#    type: image-to-text
+#    script: deepseek_ocr.py
+#    env:
+#      SP_TEMPERATURE: '0.0'
+#      SP_MAX_TOKENS: '1024'
+#      AMD_LOG_LEVEL: "3"
+#      AMD_SERIALIZE_KERNEL: "3"
+#      AMD_SERIALIZE_COPY: "3"
+#      HSA_ENABLE_DEBUG: "1"
+#      HSA_TOOLS_LIB: "/opt/rocm/lib/librocm-debug-agent.so.2"
+#      NCCL_NVLS_ENABLE: "0"
+#      TORCH_NCCL_AVOID_RECORD_STREAMS: "1"
+#      PYTORCH_CUDA_ALLOC_CONF: "max_split_size_mb:128"
   - name: Qwen/Qwen3-Embedding-4B
     type: embedding
     env:
-      MAX_MODEL_LEN: '30000'
+      MAX_MODEL_LEN: '20000'
+    script: embedding.py
+  - name: google/embeddinggemma-300m
+    type: embedding
+    env:
+      MAX_MODEL_LEN: '15000'
     script: embedding.py

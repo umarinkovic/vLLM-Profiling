@@ -1,3 +1,5 @@
+# text.yaml
+
 prompts:
   - "Print the first 512 digits of Pi."
   - "Write a 1024-token essay about the importance of kindness."

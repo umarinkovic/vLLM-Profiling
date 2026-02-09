@@ -1,3 +1,5 @@
+# multimodal.yaml
+
 prompts:
       - - type: image
           name: scene

@@ -1,3 +1,5 @@
+# image-to-text.yaml
+
 prompts:
   - prompt: "<image>\nExtract the text from the scanned image. Print 5 random sections of the text, 512 tokens maximum."
     image: instructions
