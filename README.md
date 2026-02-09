@@ -120,6 +120,7 @@ Notes:
 * You may provide your own images
 * Image filenames **must match** what the prompt YAML files expect (see `yaml/prompts/`)
 
+TODO: rework the way images are handled (repo should provide default images via links)
 ---
 
 ### `scripts/`
