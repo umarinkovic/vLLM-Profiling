@@ -14,7 +14,7 @@ from transformers import AutoProcessor
 import sys
 import time
 import os
-from runner_utilities.preprocess import load_prompts, prepare_prompts, load_images
+from runner_utilities.preprocess import load_prompts, prompts_to_messages, load_images
 from runner_utilities.argparse import parse_and_validate_args
 from runner_utilities.runner_tools import generate_and_collect
 
@@ -79,7 +79,7 @@ def main():
         description="Script for running Qwen-VL models.", resources=True, argv=sys.argv
     )
 
-    prompts = prepare_prompts(
+    prompts = prompts_to_messages(
         load_prompts(args.prompts_path),
         load_images(args.resources_path),
     )

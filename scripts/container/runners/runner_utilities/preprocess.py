@@ -30,7 +30,8 @@ def load_prompts(prompts_path):
         return yaml.safe_load(f)["prompts"]
 
 
-def prepare_prompts(prompts, multimedia_dict):
+# TODO: rename?
+def prompts_to_messages(prompts, multimedia_dict):
     return [
         {
             "role": "user",
@@ -47,4 +48,14 @@ def prepare_prompts(prompts, multimedia_dict):
             ],
         }
         for content in prompts
+    ]
+
+
+def prepare_prompts(prompts, multimedia_dict):
+    return [
+        {
+            "prompt": prompt["prompt"],
+            "multi_modal_data": multimedia_dict[prompt["image"]],
+        }
+        for prompt in prompts
     ]
